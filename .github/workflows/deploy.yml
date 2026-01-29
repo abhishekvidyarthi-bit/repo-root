@@ -15,3 +15,20 @@ jobs:
 
       - name: Show files (sanity check)
         run: ls -l
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.BASTION_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 3.26.209.28 >> ~/.ssh/known_hosts
+
+      - name: SSH into Bastion
+        run: |
+          ssh ec2-user@3.26.209.28 "echo Connected to bastion"
