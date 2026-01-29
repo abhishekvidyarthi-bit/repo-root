@@ -15,6 +15,7 @@ jobs:
 
       - name: Show files (sanity check)
         run: ls -l
+
   deploy:
     runs-on: ubuntu-latest
 
@@ -31,9 +32,13 @@ jobs:
 
       - name: Deploy to private EC2 via bastion
         run: |
-          ssh ec2-user@3.26.209.28 << 'EOF'
-            scp /home/ec2-user/index.html ec2-user@10.0.2.118:/tmp/index.html
-            ssh ec2-user@10.0.2.118 "
+          # Copy file from GitHub runner to bastion
+          scp index.html ec2-user@<BASTION_PUBLIC_IP>:/home/ec2-user/index.html
+
+          # SSH into bastion and deploy to private EC2
+          ssh ec2-user@<BASTION_PUBLIC_IP> << 'EOF'
+            scp /home/ec2-user/index.html ec2-user@<PRIVATE_EC2_PRIVATE_IP>:/tmp/index.html
+            ssh ec2-user@<PRIVATE_EC2_PRIVATE_IP> "
               sudo mv /tmp/index.html /usr/share/nginx/html/index.html
               sudo systemctl restart nginx
             "
